@@ -1,0 +1,5 @@
+venv/
+__pycache__/
+*.pyc
+mems.db
+.DS_Store
