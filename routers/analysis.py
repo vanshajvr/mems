@@ -23,7 +23,13 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Dataset not found")
 
     filepath = str(dataset.filepath)
-    df = pd.read_csv(filepath)
+
+    try:
+        df = pd.read_csv(filepath)
+    except pd.errors.EmptyDataError:
+        raise HTTPException(status_code=400, detail="CSV file is empty or has no columns")
+    except pd.errors.ParserError:
+        raise HTTPException(status_code=400, detail="CSV file is malformed and could not be parsed")
 
     required_columns = [CP_COLUMN, RH_COLUMN, LOSS_COLUMN]
     missing = [c for c in required_columns if c not in df.columns]
@@ -33,6 +39,12 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
             detail=f"Missing expected columns {missing}. Columns present: {list(df.columns)}"
         )
 
+    if df.empty:
+        raise HTTPException(
+            status_code=400,
+            detail="CSV has headers but no data rows"
+        )
+
     # Drop instrument warm-up row(s) -- Humidity == 0.0 on the first reading
     df = df[df[RH_COLUMN] != 0.0]
     if df.empty:
@@ -40,7 +52,7 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
             status_code=400,
             detail="No valid rows remaining after cleaning (all rows had Humidity == 0)"
         )
-
+    
     mean_cp = float(df[CP_COLUMN].mean())
     std_dev = float(df[CP_COLUMN].std())
     mean_loss = float(df[LOSS_COLUMN].mean())
