@@ -5,3 +5,5 @@ mems.db
 .DS_Store.vscode/
 uploaded_datasets/
 .vscode/
+.env
+.env

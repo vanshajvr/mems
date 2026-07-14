@@ -1,26 +1,33 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
-DATABASE_URL="sqlite:///./mems.db" ## address of the database file
+load_dotenv()  # reads .env into the environment -- must run before os.getenv() below
 
-engine=create_engine(
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mems.db")
+# os.getenv(key, default) -- reads DATABASE_URL from .env if present,
+# falls back to the hardcoded default if .env is missing entirely
+# (e.g. on a fresh clone before anyone's created one).
+
+engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False}
-) ## create engine to connect to the database
+)
 
-SessionLocal=sessionmaker(
+SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
-) ## create a sessionmaker class to create database sessions
+)
 
-Base=declarative_base() ## create a base class for the models to inherit from 
+Base = declarative_base()
+
 
 def get_db():
-    db=SessionLocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-## a dependency function to get a database session and close it after use

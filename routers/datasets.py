@@ -1,5 +1,6 @@
 import os
 import shutil
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
@@ -7,12 +8,14 @@ import models
 import schemas
 from database import get_db
 
+load_dotenv()
+
 router = APIRouter(
     prefix="/datasets",
     tags=["datasets"]
 )
 
-UPLOAD_DIR = "uploaded_datasets"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploaded_datasets")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
