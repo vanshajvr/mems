@@ -84,7 +84,7 @@ Then open `http://127.0.0.1:8000/docs`.
 
 ## Status
 
-Built as a 6-day sprint (July 13–19, 2026), following on from the AH2700A automation suite built during a CSIR-NPL research internship.
+Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automation suite built during a CSIR-NPL research internship.
 
 - [x] Project setup, database + ORM layer
 - [x] Project CRUD
