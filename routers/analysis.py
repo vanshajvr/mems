@@ -11,10 +11,9 @@ router = APIRouter(
     tags=["analysis"]
 )
 
-# ── Matched to your real AH2700A CSV headers ────────────────────────
 CP_COLUMN = "Cp (pF)"
 RH_COLUMN = "Humidity (%)"
-# ─────────────────────────────────────────────────────────────────────
+LOSS_COLUMN = "Loss"
 
 
 @router.post("/run/{dataset_id}", response_model=schemas.Analysis)
@@ -23,27 +22,19 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
     if dataset is None:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    # Same logic your AH2700A suite already runs -- just called from
-    # an endpoint now instead of a Tkinter button handler.
     filepath = str(dataset.filepath)
     df = pd.read_csv(filepath)
 
-    if CP_COLUMN not in df.columns:
+    required_columns = [CP_COLUMN, RH_COLUMN, LOSS_COLUMN]
+    missing = [c for c in required_columns if c not in df.columns]
+    if missing:
         raise HTTPException(
             status_code=400,
-            detail=f"Expected column '{CP_COLUMN}' not found in CSV. Columns present: {list(df.columns)}"
+            detail=f"Missing expected columns {missing}. Columns present: {list(df.columns)}"
         )
 
-    # Cleaning step: drop the instrument warm-up row(s). On the AH2700A
-    # suite's output, the very first observation reads Humidity == 0.0
-    # (and Temperature == 0.0) before the sensor has actually settled --
-    # not a real measurement. Left in, it skews mean/std and especially
-    # the Cp-vs-RH correlation, since RH=0.0 is a genuine outlier.
-    rows_before = len(df)
-    if RH_COLUMN in df.columns:
-        df = df[df[RH_COLUMN] != 0.0]
-    rows_dropped = rows_before - len(df)
-
+    # Drop instrument warm-up row(s) -- Humidity == 0.0 on the first reading
+    df = df[df[RH_COLUMN] != 0.0]
     if df.empty:
         raise HTTPException(
             status_code=400,
@@ -51,26 +42,18 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
         )
 
     mean_cp = float(df[CP_COLUMN].mean())
-    std_cp = float(df[CP_COLUMN].std())
+    std_dev = float(df[CP_COLUMN].std())
+    mean_loss = float(df[LOSS_COLUMN].mean())
+    correlation = float(df[CP_COLUMN].corr(df[RH_COLUMN]))
+    expanded_u = std_dev * 2  # k=2 coverage factor -- adjust if your real formula differs
 
-    correlation = None
-    if RH_COLUMN in df.columns:
-        correlation = float(df[CP_COLUMN].corr(df[RH_COLUMN]))
-
-    # Expanded uncertainty, k=2 (~95% confidence) -- standard GUM-style
-    # convention. Swap this out if your AH2700A suite already computes
-    # expanded_u differently (e.g. combining Type A + Type B terms).
-    expanded_u = std_cp * 2
-
-    # If this dataset already has an Analysis row, overwrite it rather
-    # than creating a duplicate -- re-running analysis should update
-    # the existing result, not pile up multiple rows for one dataset.
     existing = db.query(models.Analysis).filter(models.Analysis.dataset_id == dataset_id).first()
     if existing:
-        existing.mean_cp = mean_cp        # type: ignore
-        existing.std_cp = std_cp          # type: ignore
+        existing.mean_cp = mean_cp          # type: ignore
+        existing.std_dev = std_dev          # type: ignore
+        existing.mean_loss = mean_loss      # type: ignore
         existing.correlation = correlation  # type: ignore
-        existing.expanded_u = expanded_u  # type: ignore
+        existing.expanded_u = expanded_u    # type: ignore
         db.commit()
         db.refresh(existing)
         return existing
@@ -78,7 +61,8 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
     db_analysis = models.Analysis(
         dataset_id=dataset_id,
         mean_cp=mean_cp,
-        std_cp=std_cp,
+        std_dev=std_dev,
+        mean_loss=mean_loss,
         correlation=correlation,
         expanded_u=expanded_u
     )
