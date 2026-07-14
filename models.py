@@ -19,7 +19,7 @@ class Project(Base):
     created_at=Column(DateTime(timezone=True), server_default=func.now())
     ## automatically set the field to the current project creation time
 
-    experiments=relationship("Experiment", back_populates="project")
+    experiments=relationship("Experiment", back_populates="project", cascade="all, delete-orphan")
     ## establishes relationship with experiment model
     ## it allows to access experiments associate with a project
 
@@ -40,7 +40,7 @@ class Experiment(Base):
     project = relationship("Project", back_populates="experiments")
     ## establishes relationship with project model
 
-    datasets = relationship("Dataset", back_populates="experiment")
+    datasets = relationship("Dataset", back_populates="experiment", cascade="all, delete-orphan")
     ## establishes relationship with dataset model
 
 class Dataset(Base):
@@ -56,7 +56,7 @@ class Dataset(Base):
     experiment = relationship("Experiment", back_populates="datasets")
     ## establishes relationship with experiment model
 
-    analysis = relationship("Analysis", back_populates="dataset", uselist=False)
+    analysis = relationship("Analysis", back_populates="dataset", uselist=False, cascade="all, delete-orphan")
     ## establishes relationship with analysis model
 
 class Analysis(Base):
