@@ -33,6 +33,8 @@ class ExperimentBase(BaseModel):
 
 class ExperimentCreate(ExperimentBase):
     project_id: int
+    ### project_id is required here, unlike the DB-generated fields
+    ### client has to tell us which project this experiment belongs to.
 
 class Experiment(ExperimentBase):
     id: int
