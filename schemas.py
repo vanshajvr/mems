@@ -51,12 +51,12 @@ class DatasetBase(BaseModel):
  
  
 class DatasetCreate(DatasetBase):
-    exp_id: int
+    experiment_id: int
  
  
 class Dataset(DatasetBase):
     id: int
-    exp_id: int
+    experiment_id: int
     uploaded_at: datetime
  
     class Config:
