@@ -81,5 +81,5 @@ def get_analysis(dataset_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[schemas.Analysis])
-def list_analyses(db: Session = Depends(get_db)):
-    return db.query(models.Analysis).all()
+def list_analyses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Analysis).offset(skip).limit(limit).all()

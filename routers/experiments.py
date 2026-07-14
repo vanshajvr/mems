@@ -25,13 +25,13 @@ def create_experiment(experiment: schemas.ExperimentCreate, db: Session = Depend
 
 
 @router.get("", response_model=list[schemas.Experiment])
-def list_experiments(db: Session = Depends(get_db)):
-    return db.query(models.Experiment).all()
+def list_experiments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Experiment).offset(skip).limit(limit).all()
 
 
 @router.get("/by-project/{project_id}", response_model=list[schemas.Experiment])
-def list_experiments_for_project(project_id: int, db: Session = Depends(get_db)):
-    return db.query(models.Experiment).filter(models.Experiment.project_id == project_id).all()
+def list_experiments_for_project(project_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Experiment).filter(models.Experiment.project_id == project_id).offset(skip).limit(limit).all()
 
 
 @router.get("/{experiment_id}", response_model=schemas.Experiment)

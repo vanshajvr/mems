@@ -50,13 +50,13 @@ def upload_dataset(
 
 
 @router.get("", response_model=list[schemas.Dataset])
-def list_datasets(db: Session = Depends(get_db)):
-    return db.query(models.Dataset).all()
+def list_datasets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Dataset).offset(skip).limit(limit).all()
 
 
 @router.get("/by-experiment/{experiment_id}", response_model=list[schemas.Dataset])
-def list_datasets_for_experiment(experiment_id: int, db: Session = Depends(get_db)):
-    return db.query(models.Dataset).filter(models.Dataset.experiment_id == experiment_id).all()
+def list_datasets_for_experiment(experiment_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Dataset).filter(models.Dataset.experiment_id == experiment_id).offset(skip).limit(limit).all()
 
 
 @router.get("/{dataset_id}", response_model=schemas.Dataset)

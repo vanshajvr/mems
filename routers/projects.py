@@ -19,10 +19,9 @@ def create_project(project:schemas.ProjectCreate, db:Session=Depends(get_db)):
     db.refresh(db_project)
     return db_project
 
-@router.get("/{project_id}", response_model=list[schemas.Project])
-
-def list_project(db: Session=Depends(get_db)):
-    return db.query(models.Project).all()
+@router.get("", response_model=list[schemas.Project])
+def list_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Project).offset(skip).limit(limit).all()
 
 @router.get("/{project_id}", response_model=schemas.Project)
 
