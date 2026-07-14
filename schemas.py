@@ -81,4 +81,17 @@ class Analysis(AnalysisBase):
  
     class Config:
         from_attributes = True
+
+class DatasetWithAnalysis(Dataset):
+    analysis: Optional[Analysis] = None
+
+
+class ExperimentWithDatasets(Experiment):
+    datasets: List[DatasetWithAnalysis] = []
+
+
+class ProjectReport(Project):
+    experiments: List[ExperimentWithDatasets] = []
+
+
  
