@@ -65,7 +65,8 @@ class Dataset(DatasetBase):
 # Analysis Schemas
 class AnalysisBase(BaseModel):
     mean_cp: Optional[float] = None
-    std_cp: Optional[float] = None
+    std_dev: Optional[float] = None
+    mean_loss: Optional[float] = None
     correlation: Optional[float] = None
     expanded_u: Optional[float] = None
  
