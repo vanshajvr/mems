@@ -4,3 +4,4 @@ __pycache__/
 mems.db
 .DS_Store.vscode/
 uploaded_datasets/
+.vscode/
