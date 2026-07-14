@@ -18,11 +18,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/upload", response_model=schemas.Dataset)
 def upload_dataset(
-    exp_id: int = Form(...),
+    experiment_id: int = Form(...),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    experiment = db.query(models.Experiment).filter(models.Experiment.id == exp_id).first()
+    experiment = db.query(models.Experiment).filter(models.Experiment.id == experiment_id).first()
     if experiment is None:
         raise HTTPException(status_code=404, detail="Experiment not found")
 
@@ -36,7 +36,7 @@ def upload_dataset(
         shutil.copyfileobj(file.file, buffer)
 
     db_dataset = models.Dataset(
-        exp_id=exp_id,
+        experiment_id=experiment_id,
         filename=filename,
         filepath=save_path
     )
@@ -51,9 +51,9 @@ def list_datasets(db: Session = Depends(get_db)):
     return db.query(models.Dataset).all()
 
 
-@router.get("/by-experiment/{exp_id}", response_model=list[schemas.Dataset])
-def list_datasets_for_experiment(exp_id: int, db: Session = Depends(get_db)):
-    return db.query(models.Dataset).filter(models.Dataset.exp_id == exp_id).all()
+@router.get("/by-experiment/{experiment_id}", response_model=list[schemas.Dataset])
+def list_datasets_for_experiment(experiment_id: int, db: Session = Depends(get_db)):
+    return db.query(models.Dataset).filter(models.Dataset.experiment_id == experiment_id).all()
 
 
 @router.get("/{dataset_id}", response_model=schemas.Dataset)
