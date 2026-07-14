@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from database import Base
 
 class Project(Base):
-    _tablename_="projects"
+    __tablename__="projects"
 
     id=Column(Integer, primary_key=True, index=True)
     ## acts as a unique identifier for each project
@@ -24,7 +24,7 @@ class Project(Base):
     ## it allows to access experiments associate with a project
 
 class Experiment(Base):
-    _tablename_="experiments"
+    __tablename__="experiments"
 
     id=Column(Integer, primary_key=True, index=True)
     project_id=Column(Integer, ForeignKey("projects.id"), nullable=False)
@@ -44,7 +44,7 @@ class Experiment(Base):
     ## establishes relationship with dataset model
 
 class Dataset(Base):
-    _tablename_="datasets"
+    __tablename__="datasets"
 
     id=Column(Integer, primary_key=True, index=True)
     experiment_id=Column(Integer, ForeignKey("exeriments.id"),nullable=False)
@@ -60,7 +60,7 @@ class Dataset(Base):
     ## establishes relationship with analysis model
 
 class Analysis(Base):
-    _tablename_="analysis"
+    __tablename__="analysis"
 
     id=Column(Integer, primary_key=True, index= True)
     dataset_id=Column(Integer, ForeignKey("datasets.id"), nullable=False)
