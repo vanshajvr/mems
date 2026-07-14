@@ -91,7 +91,7 @@ Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automat
 - [x] Experiment CRUD, linked to Project
 - [x] CSV upload + Dataset CRUD
 - [x] Analysis engine — verified end-to-end against real CSIR-NPL measurement data
-- [ ] Reporting endpoint (full project → experiment → dataset → analysis rollup)
+- [x] Reporting endpoint (full project → experiment → dataset → analysis rollup)
 
 ## Why this project
 
