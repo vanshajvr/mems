@@ -112,15 +112,24 @@ Tests run against a separate, isolated SQLite database (`test.db`) — never aga
 A trimmed sample CSV (10 rows from a real measurement run, including the instrument warm-up row) is included at `test_data/` so the full pipeline can be exercised without needing real lab data.
 
 ## Status
-
-Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automation suite built during a CSIR-NPL research internship.
-
+ 
+Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automation suite built during a CSIR-NPL research internship. Hardened and deployed in a follow-up pass.
+ 
+**Core build**
 - [x] Project setup, database + ORM layer
 - [x] Project CRUD
 - [x] Experiment CRUD, linked to Project
 - [x] CSV upload + Dataset CRUD
 - [x] Analysis engine — verified end-to-end against real CSIR-NPL measurement data
 - [x] Reporting endpoint (full project → experiment → dataset → analysis rollup)
+**Hardening**
+- [x] Configuration externalized to `.env`
+- [x] Pagination on all list endpoints
+- [x] Cascade delete, with documented tradeoff
+- [x] Edge cases handled: empty/malformed CSVs, zero-variance data, missing columns
+**Testing & deployment**
+- [x] Automated `pytest` suite, including regression tests for bugs found during hardening
+- [x] Deployed live on Railway with persistent volume storage
 
 ## Why this project
 
