@@ -5,6 +5,7 @@ from projects_tab import ProjectsTab
 from experiments_tab import ExperimentsTab
 from datasets_tab import DatasetsTab
 from analysis_tab import AnalysisTab
+from styles import STYLESHEET
 
 
 class MemsClient(QMainWindow):
@@ -24,6 +25,7 @@ class MemsClient(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyleSheet(STYLESHEET)   # <-- the one new line
     window = MemsClient()
     window.show()
     sys.exit(app.exec())
