@@ -57,7 +57,17 @@ def run_analysis(dataset_id: int, db: Session = Depends(get_db)):
     std_dev = float(df[CP_COLUMN].std())
     mean_loss = float(df[LOSS_COLUMN].mean())
     correlation = float(df[CP_COLUMN].corr(df[RH_COLUMN]))
-    expanded_u = std_dev * 2  # k=2 coverage factor -- adjust if your real formula differs
+
+    if pd.isna(correlation):
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot compute correlation -- insufficient variance in the data "
+                   "(e.g. Cp or Humidity values are constant, or too few rows remain after cleaning)"
+        )
+
+    expanded_u = std_dev * 2
+
+  # k=2 coverage factor -- adjust if your real formula differs
 
     existing = db.query(models.Analysis).filter(models.Analysis.dataset_id == dataset_id).first()
     if existing:
