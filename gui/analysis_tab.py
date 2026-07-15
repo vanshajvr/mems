@@ -27,7 +27,37 @@ class AnalysisTab(QWidget):
         run_button = QPushButton("Run Analysis")
         run_button.clicked.connect(self.handle_run_analysis)
         run_selector.addWidget(run_button)
+        delete_button = QPushButton("Delete Analysis")
+        delete_button.clicked.connect(self.handle_delete_analysis)
+        run_selector.addWidget(delete_button)
         run_layout.addLayout(run_selector)
+
+        # --- add this new method anywhere in the class ---
+        def handle_delete_analysis(self):
+            dataset_id = self.dataset_combo.currentData()
+            if dataset_id is None:
+                QMessageBox.warning(self, "No dataset selected", "Select a dataset first.")
+                return
+
+            confirm = QMessageBox.question(
+                self, "Confirm delete",
+                f"Delete the analysis result for dataset {dataset_id}? "
+                "The dataset and its CSV file are not affected.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if confirm != QMessageBox.StandardButton.Yes:
+                return
+
+            try:
+                api_client.delete_analysis(dataset_id)
+            except api_client.APIError as e:
+                QMessageBox.critical(self, "Error", f"Could not delete analysis: {e.detail}")
+                return
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Could not reach the API: {e}")
+                return
+
+            self.result_label.setText("Analysis deleted")
 
         self.result_label = QLabel("No analysis run yet")
         self.result_label.setWordWrap(True)
@@ -77,6 +107,31 @@ class AnalysisTab(QWidget):
         for ds in datasets:
             self.dataset_combo.addItem(f"{ds['id']} - {ds['filename']}", ds["id"])
 
+    def handle_delete_analysis(self):
+            dataset_id = self.dataset_combo.currentData()
+            if dataset_id is None:
+                QMessageBox.warning(self, "No dataset selected", "Select a dataset first.")
+                return
+
+            confirm = QMessageBox.question(
+                self, "Confirm delete",
+                f"Delete the analysis result for dataset {dataset_id}? "
+                "The dataset and its CSV file are not affected.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if confirm != QMessageBox.StandardButton.Yes:
+                return
+
+            try:
+                api_client.delete_analysis(dataset_id)
+            except api_client.APIError as e:
+                QMessageBox.critical(self, "Error", f"Could not delete analysis: {e.detail}")
+                return
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Could not reach the API: {e}")
+                return
+
+            self.result_label.setText("Analysis deleted")
     def load_projects(self):
         try:
             projects = api_client.get_projects()
@@ -139,7 +194,7 @@ class AnalysisTab(QWidget):
             for ds in exp.get("datasets", []):
                 ds_item = QTreeWidgetItem([ds["filename"], ""])
                 exp_item.addChild(ds_item)
-                
+
                 analysis = ds.get("analysis")
                 if analysis:
                     detail = (
