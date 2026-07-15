@@ -69,6 +69,8 @@ mems/
 
 **Analysis** — `POST /analysis/run/{dataset_id}` · `GET /analysis/{dataset_id}` · `GET /analysis`
 
+All `GET` list endpoints (`/projects`, `/experiments`, `/datasets`, `/analysis`) support `?skip=` and `?limit=` query params for pagination (default `limit=100`).
+
 Full interactive documentation is auto-generated at `/docs` when the server is running.
 
 ## What the analysis engine does
