@@ -8,3 +8,4 @@ uploaded_datasets/
 .env
 .env
 test.db
+.DS_Store
