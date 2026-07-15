@@ -28,6 +28,8 @@ class DatasetsTab(QWidget):
         self.table.itemSelectionChanged.connect(self.on_selection_changed)
         layout.addWidget(self.table)
 
+
+        self.table.setAlternatingRowColors(True)
         action_layout = QHBoxLayout()
         self.selected_file_label = QLabel("No file selected")
         browse_button = QPushButton("Browse CSV...")
@@ -35,6 +37,7 @@ class DatasetsTab(QWidget):
         upload_button = QPushButton("Upload")
         upload_button.clicked.connect(self.handle_upload)
         delete_button = QPushButton("Delete Selected")
+        delete_button.setObjectName("dangerButton")
         delete_button.clicked.connect(self.handle_delete)
         action_layout.addWidget(self.selected_file_label, stretch=1)
         action_layout.addWidget(browse_button)

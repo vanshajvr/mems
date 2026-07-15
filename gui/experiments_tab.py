@@ -29,6 +29,7 @@ class ExperimentsTab(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
         self.table.itemSelectionChanged.connect(self.on_selection_changed)
         layout.addWidget(self.table)
+        self.table.setAlternatingRowColors(True)
 
         form_layout = QHBoxLayout()
         self.title_input = QLineEdit()
@@ -42,6 +43,7 @@ class ExperimentsTab(QWidget):
         update_button = QPushButton("Update Selected")
         update_button.clicked.connect(self.handle_update)
         delete_button = QPushButton("Delete Selected")
+        delete_button.setObjectName("dangerButton")
         delete_button.clicked.connect(self.handle_delete)
         clear_button = QPushButton("Clear")
         clear_button.clicked.connect(self.clear_form)

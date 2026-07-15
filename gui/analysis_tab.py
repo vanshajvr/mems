@@ -28,6 +28,7 @@ class AnalysisTab(QWidget):
         run_button.clicked.connect(self.handle_run_analysis)
         run_selector.addWidget(run_button)
         delete_button = QPushButton("Delete Analysis")
+        delete_button.setObjectName("dangerButton")
         delete_button.clicked.connect(self.handle_delete_analysis)
         run_selector.addWidget(delete_button)
         run_layout.addLayout(run_selector)
@@ -88,6 +89,7 @@ class AnalysisTab(QWidget):
         self.report_tree = QTreeWidget()
         self.report_tree.setHeaderLabels(["Item", "Details"])
         report_layout.addWidget(self.report_tree)
+        self.report_tree.setAlternatingRowColors(True)
 
         report_box.setLayout(report_layout)
         layout.addWidget(report_box)
