@@ -1,20 +1,24 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-# Point this at your live Railway URL once you're ready to stop testing
-# against localhost. Centralizing it here means changing ONE line
-# switches every tab over, instead of hunting through four files.
-BASE_URL = "http://127.0.0.1:8000"
+# python-dotenv's load_dotenv() walks UP from the current directory
+# looking for a .env file -- since gui/ is a subfolder of mems/, this
+# finds the SAME .env your backend already uses, without needing a
+# second copy inside gui/.
+load_dotenv()
+
+# Falls back to localhost if MEMS_API_URL isn't set -- same
+# os.getenv(key, default) pattern as database.py's DATABASE_URL.
+BASE_URL = os.getenv("MEMS_API_URL", "http://127.0.0.1:8000")
 
 
 class APIError(Exception):
-    """Raised when the API returns an error response, so the GUI
-    layer can catch this specifically and show a message box,
-    instead of letting a raw requests exception crash the app."""
     def __init__(self, status_code, detail):
         self.status_code = status_code
         self.detail = detail
         super().__init__(f"{status_code}: {detail}")
-
+        
 
 def _handle_response(response):
     if response.status_code >= 400:

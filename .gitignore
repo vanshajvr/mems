@@ -7,3 +7,4 @@ uploaded_datasets/
 .vscode/
 .env
 .env
+test.db
