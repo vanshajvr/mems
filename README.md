@@ -2,6 +2,13 @@
 
 A FastAPI backend for managing research projects, experiments, datasets, and analysis results for impedance metrology data — built on real measurement data from an automated AH2700A capacitance bridge suite.
 
+## Live Demo
+ 
+**API:** https://mems-production-5542.up.railway.app
+**Interactive docs:** https://mems-production-5542.up.railway.app/docs
+ 
+(Free-tier hosting — the first request after a period of inactivity may take a few seconds to wake up.)
+
 ## What it does
 
 An automated instrumentation suite (AH2700A capacitance bridge + dielectric test fixture + thermo-hygrometer, driven over PyVISA/SCPI) collects overnight measurement runs and saves them as CSV files. MEMS is the layer on top: it organizes that data into projects and experiments, stores uploaded CSVs, and runs statistical analysis on them — all through a REST API instead of manually opening spreadsheets.
