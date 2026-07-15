@@ -40,6 +40,8 @@ One project has many experiments. One experiment has many datasets. One dataset 
 | **Dataset** | `experiment_id`, `filename`, `filepath` |
 | **Analysis** | `dataset_id`, `mean_cp`, `std_dev`, `mean_loss`, `correlation`, `expanded_u` |
 
+**Cascade delete:** deleting a Project removes all its Experiments, which removes their Datasets, which removes their Analysis results (SQLAlchemy `cascade="all, delete-orphan"`). This is standard REST behavior and keeps the API simple, but it's a deliberate tradeoff — a production system protecting irreplaceable research data would more likely use soft deletes or a confirmation step before a destructive cascade like this.
+
 ## Project structure
 
 ```
