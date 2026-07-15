@@ -11,7 +11,6 @@ class DatasetsTab(QWidget):
         super().__init__()
         layout = QVBoxLayout()
 
-        # -- Experiment selector --
         selector_layout = QHBoxLayout()
         selector_layout.addWidget(QLabel("Experiment:"))
         self.experiment_combo = QComboBox()
@@ -22,24 +21,26 @@ class DatasetsTab(QWidget):
         selector_layout.addWidget(refresh_button)
         layout.addLayout(selector_layout)
 
-        # -- Table of datasets for the selected experiment --
         self.table = QTableWidget()
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(["ID", "Filename", "Uploaded At"])
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.table.itemSelectionChanged.connect(self.on_selection_changed)
         layout.addWidget(self.table)
 
-        # -- File picker + upload --
-        upload_layout = QHBoxLayout()
+        action_layout = QHBoxLayout()
         self.selected_file_label = QLabel("No file selected")
         browse_button = QPushButton("Browse CSV...")
         browse_button.clicked.connect(self.handle_browse)
         upload_button = QPushButton("Upload")
         upload_button.clicked.connect(self.handle_upload)
-        upload_layout.addWidget(self.selected_file_label, stretch=1)
-        upload_layout.addWidget(browse_button)
-        upload_layout.addWidget(upload_button)
-        layout.addLayout(upload_layout)
+        delete_button = QPushButton("Delete Selected")
+        delete_button.clicked.connect(self.handle_delete)
+        action_layout.addWidget(self.selected_file_label, stretch=1)
+        action_layout.addWidget(browse_button)
+        action_layout.addWidget(upload_button)
+        action_layout.addWidget(delete_button)
+        layout.addLayout(action_layout)
 
         self.status_label = QLabel("")
         layout.addWidget(self.status_label)
@@ -47,6 +48,7 @@ class DatasetsTab(QWidget):
         self.setLayout(layout)
 
         self.selected_filepath = None
+        self.selected_dataset_id = None
         self.load_experiments()
 
     def load_experiments(self):
@@ -90,12 +92,20 @@ class DatasetsTab(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(ds.get("uploaded_at") or ""))
 
         self.status_label.setText(f"{len(datasets)} dataset(s) loaded")
+    
+    def _item_text(self, row, col):
+        item = self.table.item(row, col)
+        return item.text() if item is not None else ""
+
+    def on_selection_changed(self):
+        selected_rows = self.table.selectionModel().selectedRows()
+        if not selected_rows:
+            self.selected_dataset_id = None
+            return
+        row = selected_rows[0].row()
+        self.selected_dataset_id = int(self._item_text(row, 0))
 
     def handle_browse(self):
-        # QFileDialog.getOpenFileName returns (filepath, selected_filter) --
-        # we only care about the first value. The filter string restricts
-        # the picker to .csv files, same idea as filetypes= in Tkinter's
-        # askopenfilename.
         filepath, _ = QFileDialog.getOpenFileName(self, "Select CSV file", "", "CSV Files (*.csv)")
         if filepath:
             self.selected_filepath = filepath
@@ -109,7 +119,6 @@ class DatasetsTab(QWidget):
         if not self.selected_filepath:
             QMessageBox.warning(self, "No file selected", "Browse for a CSV file first.")
             return
-
         try:
             api_client.upload_dataset(experiment_id, self.selected_filepath)
         except api_client.APIError as e:
@@ -118,7 +127,29 @@ class DatasetsTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Could not reach the API: {e}")
             return
-
         self.selected_filepath = None
         self.selected_file_label.setText("No file selected")
+        self.refresh_datasets()
+
+    def handle_delete(self):
+        if self.selected_dataset_id is None:
+            QMessageBox.warning(self, "No selection", "Select a dataset in the table first.")
+            return
+        confirm = QMessageBox.question(
+            self, "Confirm delete",
+            f"Delete dataset {self.selected_dataset_id}? This will also delete "
+            "its analysis result, if one exists.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            api_client.delete_dataset(self.selected_dataset_id)
+        except api_client.APIError as e:
+            QMessageBox.critical(self, "Error", f"Could not delete dataset: {e.detail}")
+            return
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Could not reach the API: {e}")
+            return
+        self.selected_dataset_id = None
         self.refresh_datasets()
