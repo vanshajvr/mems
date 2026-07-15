@@ -105,3 +105,12 @@ def get_analysis(dataset_id: int, db: Session = Depends(get_db)):
 @router.get("", response_model=list[schemas.Analysis])
 def list_analyses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Analysis).offset(skip).limit(limit).all()
+
+@router.delete("/{dataset_id}")
+def delete_analysis(dataset_id: int, db: Session = Depends(get_db)):
+    analysis = db.query(models.Analysis).filter(models.Analysis.dataset_id == dataset_id).first()
+    if analysis is None:
+        raise HTTPException(status_code=404, detail="No analysis found for this dataset")
+    db.delete(analysis)
+    db.commit()
+    return {"detail": f"Analysis for dataset {dataset_id} deleted"}
