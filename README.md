@@ -79,12 +79,19 @@ On `POST /analysis/run/{dataset_id}`:
 5. Stores the result, overwriting any prior analysis for that dataset rather than duplicating it
 
 ## Setup
-
+ 
 ```bash
 cd mems
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
+Create a `.env` file in the project root:
+```
+DATABASE_URL=sqlite:///./mems.db
+UPLOAD_DIR=uploaded_datasets
+```
+```bash
 uvicorn main:app --reload
 ```
 Then open `http://127.0.0.1:8000/docs`.
