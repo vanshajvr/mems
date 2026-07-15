@@ -71,3 +71,44 @@ def run_analysis(dataset_id):
 def get_project_report(project_id):
     r = requests.get(f"{BASE_URL}/projects/{project_id}/report")
     return _handle_response(r)
+
+def get_experiments():
+    r = requests.get(f"{BASE_URL}/experiments")
+    return _handle_response(r)
+
+
+def get_datasets():
+    r = requests.get(f"{BASE_URL}/datasets")
+    return _handle_response(r)
+
+
+def get_datasets_for_experiment(experiment_id):
+    r = requests.get(f"{BASE_URL}/datasets/by-experiment/{experiment_id}")
+    return _handle_response(r)
+
+def update_project(project_id, name, desc=None):
+    r = requests.put(f"{BASE_URL}/projects/{project_id}", json={"name": name, "desc": desc})
+    return _handle_response(r)
+
+
+def delete_project(project_id):
+    r = requests.delete(f"{BASE_URL}/projects/{project_id}")
+    return _handle_response(r)
+
+
+def update_experiment(experiment_id, title, instrument=None, freq=None, voltage=None, notes=None):
+    r = requests.put(f"{BASE_URL}/experiments/{experiment_id}", json={
+        "title": title, "instrument": instrument, "freq": freq,
+        "voltage": voltage, "notes": notes
+    })
+    return _handle_response(r)
+
+
+def delete_experiment(experiment_id):
+    r = requests.delete(f"{BASE_URL}/experiments/{experiment_id}")
+    return _handle_response(r)
+
+
+def delete_dataset(dataset_id):
+    r = requests.delete(f"{BASE_URL}/datasets/{dataset_id}")
+    return _handle_response(r)
