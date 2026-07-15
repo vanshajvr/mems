@@ -9,6 +9,30 @@ A FastAPI backend for managing research projects, experiments, datasets, and ana
  
 (Free-tier hosting — the first request after a period of inactivity may take a few seconds to wake up.)
 
+## Desktop Client
+
+A native desktop GUI, built with **PySide6 (Qt)**, sits on top of the API — full CRUD across all four resources through a real macOS/Windows/Linux application instead of `/docs`.
+
+```
+gui/
+├── main.py            # window + tab wiring, applies the shared stylesheet
+├── api_client.py       # thin requests wrapper around every backend endpoint
+├── styles.py             # shared QSS stylesheet (fonts, headers, buttons, tables)
+├── projects_tab.py         # Project CRUD
+├── experiments_tab.py       # Experiment CRUD, cascading from a project dropdown
+├── datasets_tab.py           # CSV upload (native file picker) + Dataset CRUD
+└── analysis_tab.py             # Run analysis, view the full nested report as a tree, delete results
+```
+
+Run it:
+```bash
+cd gui
+python main.py
+```
+By default it points at the live Railway deployment (`MEMS_API_URL` in `.env`); unset that variable, or point it at `http://127.0.0.1:8000`, to run against a local `uvicorn` instance instead.
+
+Building this surfaced one real gap in the API — `DELETE /analysis/{dataset_id}` didn't exist even in `/docs`, since the original design only ever needed `run`/`get`/`list`. It was added specifically because the GUI's delete-button parity required it, and is now part of the documented API surface below.
+
 ## What it does
 
 An automated instrumentation suite (AH2700A capacitance bridge + dielectric test fixture + thermo-hygrometer, driven over PyVISA/SCPI) collects overnight measurement runs and saves them as CSV files. MEMS is the layer on top: it organizes that data into projects and experiments, stores uploaded CSVs, and runs statistical analysis on them — all through a REST API instead of manually opening spreadsheets.
@@ -25,6 +49,8 @@ An automated instrumentation suite (AH2700A capacitance bridge + dielectric test
 | Pydantic | Request/response validation |
 | Pandas | CSV loading, cleaning, statistics |
 | Uvicorn | ASGI server |
+| PySide6 | Desktop GUI (Qt) |
+| requests | HTTP client used by the desktop GUI |
 
 ## Data model
 
@@ -60,8 +86,9 @@ mems/
 │   └── test_pipeline.py        # full pipeline + edge case tests
 ├── test_data/                    # sample CSV for running the pipeline without real lab data
 ├── uploaded_datasets/              # uploaded CSVs (gitignored)
-├── .env                              # DATABASE_URL, UPLOAD_DIR (gitignored)
+├── .env                              # DATABASE_URL, UPLOAD_DIR, MEMS_API_URL (gitignored)
 ├── railway.json                        # Railway deployment config
+├── gui/                                   # PySide6 desktop client (see Desktop Client section above)
 └── requirements.txt
 ```
 
@@ -73,7 +100,7 @@ mems/
 
 **Datasets** — `POST /datasets/upload` (multipart CSV upload) · `GET /datasets` · `GET /datasets/by-experiment/{experiment_id}` · `GET /datasets/{id}` · `DELETE /datasets/{id}`
 
-**Analysis** — `POST /analysis/run/{dataset_id}` · `GET /analysis/{dataset_id}` · `GET /analysis`
+**Analysis** — `POST /analysis/run/{dataset_id}` · `GET /analysis/{dataset_id}` · `GET /analysis` · `DELETE /analysis/{dataset_id}`
 
 All `GET` list endpoints (`/projects`, `/experiments`, `/datasets`, `/analysis`) support `?skip=` and `?limit=` query params for pagination (default `limit=100`).
 
@@ -136,6 +163,12 @@ Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automat
 **Testing & deployment**
 - [x] Automated `pytest` suite, including regression tests for bugs found during hardening
 - [x] Deployed live on Railway with persistent volume storage
+
+**Desktop GUI**
+- [x] PySide6 client with four tabs, full CRUD parity with the API (including a new `DELETE /analysis/{id}` endpoint added specifically to close the gap)
+- [x] Native file picker for CSV upload, tree view for the nested project report
+- [x] Shared QSS stylesheet across the whole app
+- [x] Connected to the live Railway deployment via `.env`, not hardcoded to localhost
 
 ## Why this project
 
