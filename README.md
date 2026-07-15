@@ -100,6 +100,17 @@ uvicorn main:app --reload
 ```
 Then open `http://127.0.0.1:8000/docs`.
 
+## Testing
+ 
+An automated `pytest` suite covers the full pipeline (project → experiment → upload → analysis → report) plus known edge cases — missing/invalid IDs, non-CSV uploads, empty CSVs, and zero-variance data that would otherwise crash the correlation calculation.
+ 
+```bash
+pytest -v
+```
+Tests run against a separate, isolated SQLite database (`test.db`) — never against your real `mems.db`.
+ 
+A trimmed sample CSV (10 rows from a real measurement run, including the instrument warm-up row) is included at `test_data/` so the full pipeline can be exercised without needing real lab data.
+
 ## Status
 
 Built as a 6-day sprint (July 8-14, 2026), following on from the AH2700A automation suite built during a CSIR-NPL research internship.
