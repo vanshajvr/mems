@@ -112,3 +112,7 @@ def delete_experiment(experiment_id):
 def delete_dataset(dataset_id):
     r = requests.delete(f"{BASE_URL}/datasets/{dataset_id}")
     return _handle_response(r)
+
+def delete_analysis(dataset_id):
+    r = requests.delete(f"{BASE_URL}/analysis/{dataset_id}")
+    return _handle_response(r)
