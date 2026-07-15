@@ -43,7 +43,7 @@ One project has many experiments. One experiment has many datasets. One dataset 
 **Cascade delete:** deleting a Project removes all its Experiments, which removes their Datasets, which removes their Analysis results (SQLAlchemy `cascade="all, delete-orphan"`). This is standard REST behavior and keeps the API simple, but it's a deliberate tradeoff — a production system protecting irreplaceable research data would more likely use soft deletes or a confirmation step before a destructive cascade like this.
 
 ## Project structure
-
+ 
 ```
 mems/
 ├── database.py          # engine, session, Base, get_db()
@@ -55,7 +55,13 @@ mems/
 │   ├── experiments.py       # Experiment CRUD (linked to Project)
 │   ├── datasets.py           # CSV upload + Dataset CRUD
 │   └── analysis.py            # Stats computation + Analysis CRUD
-├── uploaded_datasets/          # uploaded CSVs (gitignored)
+├── tests/
+│   ├── conftest.py            # isolated test database + fixtures
+│   └── test_pipeline.py        # full pipeline + edge case tests
+├── test_data/                    # sample CSV for running the pipeline without real lab data
+├── uploaded_datasets/              # uploaded CSVs (gitignored)
+├── .env                              # DATABASE_URL, UPLOAD_DIR (gitignored)
+├── railway.json                        # Railway deployment config
 └── requirements.txt
 ```
 
