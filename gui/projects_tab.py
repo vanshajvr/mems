@@ -67,14 +67,21 @@ class ProjectsTab(QWidget):
 
         self.status_label.setText(f"{len(projects)} project(s) loaded")
 
+    def _item_text(self, row, col):
+        """Safely read a table cell's text. Returns "" if the cell
+        somehow has no item -- avoids the None-access warning Pylance
+        raises on self.table.item(row, col).text() directly."""
+        item = self.table.item(row, col)
+        return item.text() if item is not None else ""
+    
     def on_selection_changed(self):
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
             return
         row = selected_rows[0].row()
-        self.selected_project_id = int(self.table.item(row, 0).text())
-        self.name_input.setText(self.table.item(row, 1).text())
-        self.desc_input.setText(self.table.item(row, 2).text())
+        self.selected_project_id = int(self._item_text(row, 0))
+        self.name_input.setText(self._item_text(row, 1))
+        self.desc_input.setText(self._item_text(row, 2))
 
     def clear_form(self):
         self.table.clearSelection()
