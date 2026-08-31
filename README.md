@@ -3,11 +3,14 @@
 A FastAPI backend for managing research projects, experiments, datasets, and analysis results for impedance metrology data — built on real measurement data from an automated AH2700A capacitance bridge suite.
 
 ## Live Demo
- 
-**API:** https://mems-production-5542.up.railway.app
-**Interactive docs:** https://mems-production-5542.up.railway.app/docs
- 
-(Free-tier hosting — the first request after a period of inactivity may take a few seconds to wake up.)
+
+**API:** https://mems-m4op.onrender.com/
+**Interactive docs:** https://mems-m4op.onrender.com/docs
+
+(Free-tier hosting — the service spins down after 15 minutes of inactivity,
+so the first request may take 10-30 seconds to wake it up. Free tier also
+has no persistent disk, so uploaded data resets on restart/redeploy —
+acceptable for a portfolio demo, not for real research data.)
 
 ## Desktop Client
 
